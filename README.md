@@ -7,7 +7,7 @@ A resize mode for Neovim, which allows to resize the window into the direction y
 [Packer.nvim](https://github.com/wbthomason/packer.nvim):
 
 ```lua
-use("dimfred/resize-mode.nvim")
+use {"dimfred/resize-mode.nvim"}
 ```
 
 ## Configuration
