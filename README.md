@@ -56,4 +56,4 @@ resize_mode.decrease_down(<amount>)
 
 ## Cudos
 
-Cudos to @mrjones2014 [smart-split.nvim](https://github.com/mrjones2014/smart-splits.nvim), I used his resize mode and in general it was the first plugin, which sort of behaved like I wanted it to, but it doesn't work as I would expect it to when you have 3 splits open, cause you can't resize for example move the left divider.
+Cudos to @mrjones2014 [smart-split.nvim](https://github.com/mrjones2014/smart-splits.nvim), I used his resize mode.
