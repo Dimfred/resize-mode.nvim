@@ -54,6 +54,6 @@ resize_mode.decrease_bottom(<amount>)
 resize_mode.decrease_down(<amount>)
 ```
 
-## Cudos
+## Kudos
 
-Cudos to @mrjones2014 [smart-split.nvim](https://github.com/mrjones2014/smart-splits.nvim), I used his resize mode.
+Kudos to @mrjones2014 [smart-split.nvim](https://github.com/mrjones2014/smart-splits.nvim), I used his resize mode.
