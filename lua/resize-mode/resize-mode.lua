@@ -17,6 +17,11 @@ function M.start()
   pcall(config.hooks.on_enter)
 
   local resize_mode = require("resize-mode")
+
+  if config.resize_keys == nil then
+    return
+  end
+
   vim.keymap.set(
     "n",
     config.resize_keys[1],
@@ -69,15 +74,17 @@ function M.start()
 end
 
 function M.end_mode()
-  vim.api.nvim_del_keymap("n", config.resize_keys[1])
-  vim.api.nvim_del_keymap("n", config.resize_keys[2])
-  vim.api.nvim_del_keymap("n", config.resize_keys[3])
-  vim.api.nvim_del_keymap("n", config.resize_keys[4])
-  vim.api.nvim_del_keymap("n", config.resize_keys[5])
-  vim.api.nvim_del_keymap("n", config.resize_keys[6])
-  vim.api.nvim_del_keymap("n", config.resize_keys[7])
-  vim.api.nvim_del_keymap("n", config.resize_keys[8])
-  vim.api.nvim_del_keymap("n", config.quit_key)
+  if config.resize_keys == nil then
+    vim.api.nvim_del_keymap("n", config.resize_keys[1])
+    vim.api.nvim_del_keymap("n", config.resize_keys[2])
+    vim.api.nvim_del_keymap("n", config.resize_keys[3])
+    vim.api.nvim_del_keymap("n", config.resize_keys[4])
+    vim.api.nvim_del_keymap("n", config.resize_keys[5])
+    vim.api.nvim_del_keymap("n", config.resize_keys[6])
+    vim.api.nvim_del_keymap("n", config.resize_keys[7])
+    vim.api.nvim_del_keymap("n", config.resize_keys[8])
+    vim.api.nvim_del_keymap("n", config.quit_key)
+  end
 
   pcall(config.hooks.on_leave)
 end
