@@ -74,7 +74,7 @@ function M.start()
 end
 
 function M.end_mode()
-  if config.resize_keys == nil then
+  if config.resize_keys ~= nil then
     vim.api.nvim_del_keymap("n", config.resize_keys[1])
     vim.api.nvim_del_keymap("n", config.resize_keys[2])
     vim.api.nvim_del_keymap("n", config.resize_keys[3])
