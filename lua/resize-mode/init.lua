@@ -6,6 +6,7 @@ local M = {}
 
 M.setup = config.setup
 M.start = resize_mode.start
+M.end_mode = resize_mode.end_mode
 
 M.increase_left = function(amount)
   if h.at_left_edge() then
