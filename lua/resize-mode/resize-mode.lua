@@ -18,63 +18,61 @@ function M.start()
 
   local resize_mode = require("resize-mode")
 
-  if config.resize_keys == nil then
-    return
+  if config.enable_mapping then
+    vim.keymap.set(
+      "n",
+      config.resize_keys[1],
+      wrap_amount(resize_mode.increase_left, config.horizontal_amount),
+      {silent = true}
+    )
+    vim.keymap.set(
+      "n",
+      config.resize_keys[2],
+      wrap_amount(resize_mode.increase_bottom, config.vertical_amount),
+      {silent = true}
+    )
+    vim.keymap.set(
+      "n",
+      config.resize_keys[3],
+      wrap_amount(resize_mode.increase_top, config.vertical_amount),
+      {silent = true}
+    )
+    vim.keymap.set(
+      "n",
+      config.resize_keys[4],
+      wrap_amount(resize_mode.increase_right, config.horizontal_amount),
+      {silent = true}
+    )
+    vim.keymap.set(
+      "n",
+      config.resize_keys[5],
+      wrap_amount(resize_mode.decrease_left, config.horizontal_amount),
+      {silent = true}
+    )
+    vim.keymap.set(
+      "n",
+      config.resize_keys[6],
+      wrap_amount(resize_mode.decrease_bottom, config.vertical_amount),
+      {silent = true}
+    )
+    vim.keymap.set(
+      "n",
+      config.resize_keys[7],
+      wrap_amount(resize_mode.decrease_top, config.vertical_amount),
+      {silent = true}
+    )
+    vim.keymap.set(
+      "n",
+      config.resize_keys[8],
+      wrap_amount(resize_mode.decrease_right, config.horizontal_amount),
+      {silent = true}
+    )
+    vim.keymap.set("n", config.quit_key, M.end_mode, {silent = true})
   end
-
-  vim.keymap.set(
-    "n",
-    config.resize_keys[1],
-    wrap_amount(resize_mode.increase_left, config.horizontal_amount),
-    {silent = true}
-  )
-  vim.keymap.set(
-    "n",
-    config.resize_keys[2],
-    wrap_amount(resize_mode.increase_bottom, config.vertical_amount),
-    {silent = true}
-  )
-  vim.keymap.set(
-    "n",
-    config.resize_keys[3],
-    wrap_amount(resize_mode.increase_top, config.vertical_amount),
-    {silent = true}
-  )
-  vim.keymap.set(
-    "n",
-    config.resize_keys[4],
-    wrap_amount(resize_mode.increase_right, config.horizontal_amount),
-    {silent = true}
-  )
-  vim.keymap.set(
-    "n",
-    config.resize_keys[5],
-    wrap_amount(resize_mode.decrease_left, config.horizontal_amount),
-    {silent = true}
-  )
-  vim.keymap.set(
-    "n",
-    config.resize_keys[6],
-    wrap_amount(resize_mode.decrease_bottom, config.vertical_amount),
-    {silent = true}
-  )
-  vim.keymap.set(
-    "n",
-    config.resize_keys[7],
-    wrap_amount(resize_mode.decrease_top, config.vertical_amount),
-    {silent = true}
-  )
-  vim.keymap.set(
-    "n",
-    config.resize_keys[8],
-    wrap_amount(resize_mode.decrease_right, config.horizontal_amount),
-    {silent = true}
-  )
-  vim.keymap.set("n", config.quit_key, M.end_mode, {silent = true})
 end
 
 function M.end_mode()
-  if config.resize_keys ~= nil then
+  if config.enable_mapping then
     vim.api.nvim_del_keymap("n", config.resize_keys[1])
     vim.api.nvim_del_keymap("n", config.resize_keys[2])
     vim.api.nvim_del_keymap("n", config.resize_keys[3])
