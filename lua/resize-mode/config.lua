@@ -14,7 +14,9 @@ function M.setup(config)
   M.horizontal_amount = config.horizontal_amount or M.horizontal_amount
   M.vertical_amount = config.vertical_amount or M.vertical_amount
   M.quit_key = config.quit_key or M.quit_key
-  M.enable_mapping = config.enable_mapping or M.enable_mapping
+  if config.enable_mapping ~= nil then
+    M.enable_mapping = config.enable_mapping
+  end
   M.resize_keys = config.resize_keys or M.resize_keys
   if config.hooks ~= nil then
     M.hooks.on_enter = config.hooks.on_enter or M.hooks.on_enter
