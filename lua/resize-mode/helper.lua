@@ -26,19 +26,19 @@ M.feed_keys = function(keys)
 end
 
 M.vinc = function(amount)
-  return (":vertical resize +%s<CR>"):format(amount)
+  return ("<cmd>vertical resize +%s<CR>"):format(amount)
 end
 
 M.vdec = function(amount)
-  return (":vertical resize -%s<CR>"):format(amount)
+  return ("<cmd>vertical resize -%s<CR>"):format(amount)
 end
 
 M.hinc = function(amount)
-  return (":resize +%s<CR>"):format(amount)
+  return ("<cmd>resize +%s<CR>"):format(amount)
 end
 
 M.hdec = function(amount)
-  return (":resize -%s<CR>"):format(amount)
+  return ("<cmd>resize -%s<CR>"):format(amount)
 end
 
 M.wrap_in_move = function(first_move, second_move, cmd)
