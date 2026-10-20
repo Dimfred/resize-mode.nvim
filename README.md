@@ -2,12 +2,14 @@
 
 A resize mode for Neovim, which allows to resize the window into the direction you want.
 
+While the mode is active, the resize keys move the borders of the current window. The quit key leaves the mode, any other key leaves it as well and is then executed as usual. The current window is tinted and `-- RESIZE --` is shown in the command line.
+
 ## Install
 
-[Packer.nvim](https://github.com/wbthomason/packer.nvim):
+[vim.pack](https://neovim.io/doc/user/pack.html):
 
 ```lua
-use {"dimfred/resize-mode.nvim"}
+vim.pack.add({ "https://github.com/dimfred/resize-mode.nvim" })
 ```
 
 ## Configuration
@@ -17,7 +19,7 @@ require("resize-mode").setup {
   horizontal_amount = 9,
   vertical_amount = 5,
   quit_key = "<ESC>",
-  enable_mapping = true,
+  enable_mapping = true, -- false: start() only shows the indicator + runs hooks, you drive the mode and call end_mode()
   resize_keys = {
       "h", -- increase to the left
       "j", -- increase to the bottom
@@ -28,6 +30,10 @@ require("resize-mode").setup {
       "K", -- decrease to the top
       "L"  -- decrease to the right
   },
+  indicator = { -- false to disable
+    hl_group = "ResizeMode", -- defaults to a link to CursorLine
+    label = "-- RESIZE --",
+  },
   hooks = {
     on_enter = nil, -- called when entering resize mode
     on_leave = nil  -- called when leaving resize mode
@@ -37,12 +43,17 @@ require("resize-mode").setup {
 
 ## Usage
 
+```lua
+vim.keymap.set("n", "<leader>rr", require("resize-mode").start)
+```
+
 Lua API:
 
 ```lua
 local resize_mode = require("resize-mode")
 
 resize_mode.start()
+resize_mode.end_mode()
 
 resize_mode.increase_left(<amount>)
 resize_mode.increase_right(<amount>)
@@ -51,51 +62,11 @@ resize_mode.increase_bottom(<amount>)
 
 resize_mode.decrease_left(<amount>)
 resize_mode.decrease_right(<amount>)
+resize_mode.decrease_top(<amount>)
 resize_mode.decrease_bottom(<amount>)
-resize_mode.decrease_down(<amount>)
 ```
 
-## Hook usecase:
-
-I use [vimpeccable](https://github.com/svermeulen/vimpeccable) to map my keys and my bindings break when this plugin maps by default.
-
-```lua
-local vimp = require("vimp")
-
-require("resize-mode").setup {
-  enable_mapping = false, -- disable default mappings
-  hooks = {
-    on_enter = function()
-      local config = require("resize-mode.config")
-
-      local function wrap_with_amount(f, amount)
-        return function()
-          f(amount)
-        end
-      end
-
-      local c = {
-        {"h", resize_mode.increase_left, config.horizontal_amount},
-        {"j", resize_mode.increase_bottom, config.vertical_amount},
-        {"k", resize_mode.increase_top, config.vertical_amount},
-        {"l", resize_mode.increase_right, config.horizontal_amount},
-        {"H", resize_mode.decrease_left, config.horizontal_amount},
-        {"J", resize_mode.decrease_bottom, config.vertical_amount},
-        {"K", resize_mode.decrease_top, config.vertical_amount},
-        {"L", resize_mode.decrease_right, config.horizontal_amount}
-      }
-      for _, data in ipairs(c) do
-        local key, f, amount = unpack(data)
-        vimp.nnoremap({"override"}, key, wrap_with_amount(f, amount))
-      end
-      vimp.nnoremap({"override"}, config.quit_key, resize_mode.end_mode)
-    end,
-    on_leave = function()
-      -- reload config here to reapply the overwritten bindings
-    end
-  }
-}
-```
+The resize functions work on their own, outside of the mode as well.
 
 ## Kudos
 

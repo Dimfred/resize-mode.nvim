@@ -2,9 +2,85 @@ local M = {}
 
 local config = require("resize-mode.config")
 
-local function wrap_amount(f, amount)
+---@class ResizeModeState
+---@field hide? fun() restores the indicator, set while the mode is active
+local state = {}
+
+---@return table<string, fun()> keycode -> resize action
+local function actions()
+  local rm = require("resize-mode")
+  local hz, v = config.horizontal_amount, config.vertical_amount
+  local k = config.resize_keys
+  return {
+    [vim.keycode(k[1])] = function()
+      rm.increase_left(hz)
+    end,
+    [vim.keycode(k[2])] = function()
+      rm.increase_bottom(v)
+    end,
+    [vim.keycode(k[3])] = function()
+      rm.increase_top(v)
+    end,
+    [vim.keycode(k[4])] = function()
+      rm.increase_right(hz)
+    end,
+    [vim.keycode(k[5])] = function()
+      rm.decrease_left(hz)
+    end,
+    [vim.keycode(k[6])] = function()
+      rm.decrease_bottom(v)
+    end,
+    [vim.keycode(k[7])] = function()
+      rm.decrease_top(v)
+    end,
+    [vim.keycode(k[8])] = function()
+      rm.decrease_right(hz)
+    end,
+  }
+end
+
+---Tint the window + show the mode label, returns the restore fn
+---@param win integer
+---@return fun()
+local function show_indicator(win)
+  local indicator = config.indicator
+  if not indicator then
+    return function() end
+  end
+
+  vim.api.nvim_set_hl(0, indicator.hl_group, { link = "CursorLine", default = true })
+  local previous = vim.wo[win].winhighlight
+  local tint = "Normal:" .. indicator.hl_group
+  vim.wo[win].winhighlight = previous == "" and tint or previous .. "," .. tint
+  vim.api.nvim_echo({ { indicator.label, "ModeMsg" } }, false, {})
+
   return function()
-    f(amount)
+    if vim.api.nvim_win_is_valid(win) then
+      vim.wo[win].winhighlight = previous
+    end
+    vim.api.nvim_echo({}, false, {})
+  end
+end
+
+---Read keys until a non-resize key. Returns that key unless it is the quit key.
+---@return string?
+local function run_loop()
+  local keys = actions()
+  local quit = vim.keycode(config.quit_key)
+
+  while true do
+    vim.cmd.redraw()
+    -- <C-c> raises "Keyboard interrupt" inside getcharstr
+    local ok, key = pcall(vim.fn.getcharstr)
+    if not ok then
+      return nil
+    end
+
+    local action = keys[key]
+    if not action then
+      return key ~= quit and key or nil
+    end
+    action()
   end
 end
 
@@ -13,78 +89,37 @@ function M.start()
     vim.notify("Resize mode must be triggered from normal mode", vim.log.levels.ERROR)
     return
   end
+  if state.hide then
+    return
+  end
 
-  pcall(config.hooks.on_enter)
+  state.hide = show_indicator(vim.api.nvim_get_current_win())
+  if config.hooks.on_enter then
+    config.hooks.on_enter()
+  end
 
-  local resize_mode = require("resize-mode")
+  -- enable_mapping = false: the caller drives the mode and calls end_mode()
+  if not config.enable_mapping then
+    return
+  end
 
-  if config.enable_mapping then
-    vim.keymap.set(
-      "n",
-      config.resize_keys[1],
-      wrap_amount(resize_mode.increase_left, config.horizontal_amount),
-      {silent = true}
-    )
-    vim.keymap.set(
-      "n",
-      config.resize_keys[2],
-      wrap_amount(resize_mode.increase_bottom, config.vertical_amount),
-      {silent = true}
-    )
-    vim.keymap.set(
-      "n",
-      config.resize_keys[3],
-      wrap_amount(resize_mode.increase_top, config.vertical_amount),
-      {silent = true}
-    )
-    vim.keymap.set(
-      "n",
-      config.resize_keys[4],
-      wrap_amount(resize_mode.increase_right, config.horizontal_amount),
-      {silent = true}
-    )
-    vim.keymap.set(
-      "n",
-      config.resize_keys[5],
-      wrap_amount(resize_mode.decrease_left, config.horizontal_amount),
-      {silent = true}
-    )
-    vim.keymap.set(
-      "n",
-      config.resize_keys[6],
-      wrap_amount(resize_mode.decrease_bottom, config.vertical_amount),
-      {silent = true}
-    )
-    vim.keymap.set(
-      "n",
-      config.resize_keys[7],
-      wrap_amount(resize_mode.decrease_top, config.vertical_amount),
-      {silent = true}
-    )
-    vim.keymap.set(
-      "n",
-      config.resize_keys[8],
-      wrap_amount(resize_mode.decrease_right, config.horizontal_amount),
-      {silent = true}
-    )
-    vim.keymap.set("n", config.quit_key, M.end_mode, {silent = true})
+  local leftover = run_loop()
+  M.end_mode()
+  if leftover then
+    vim.api.nvim_feedkeys(leftover, "m", false)
   end
 end
 
 function M.end_mode()
-  if config.enable_mapping then
-    vim.api.nvim_del_keymap("n", config.resize_keys[1])
-    vim.api.nvim_del_keymap("n", config.resize_keys[2])
-    vim.api.nvim_del_keymap("n", config.resize_keys[3])
-    vim.api.nvim_del_keymap("n", config.resize_keys[4])
-    vim.api.nvim_del_keymap("n", config.resize_keys[5])
-    vim.api.nvim_del_keymap("n", config.resize_keys[6])
-    vim.api.nvim_del_keymap("n", config.resize_keys[7])
-    vim.api.nvim_del_keymap("n", config.resize_keys[8])
-    vim.api.nvim_del_keymap("n", config.quit_key)
+  if not state.hide then
+    return
   end
+  state.hide()
+  state.hide = nil
 
-  pcall(config.hooks.on_leave)
+  if config.hooks.on_leave then
+    config.hooks.on_leave()
+  end
 end
 
 return M
